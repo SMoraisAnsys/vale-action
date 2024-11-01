@@ -79,9 +79,7 @@ export async function run(actionInput: input.Input): Promise<void> {
               `-reporter=${core.getInput('reporter')}`,
               `-fail-level=${should_fail_on_level}`,
               `-filter-mode=${core.getInput('filter_mode')}`,
-              `-level=${vale_code == 1 && (should_fail_on_level === 'error' ||
-                                           should_fail_on_level === 'warning' ||
-                                           should_fail_on_level === 'info') ? should_fail_on_level : 'info'}`
+              `-level=${vale_code == 1 ? should_fail_on_level : 'info'}`
             ],
             {
               cwd,
