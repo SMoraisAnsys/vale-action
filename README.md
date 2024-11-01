@@ -20,13 +20,30 @@ jobs:
     name: runner / vale
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: errata-ai/vale-action@reviewdog
+      - uses: actions/checkout@v4
+      - uses: errata-ai/vale-action@v2.1.1
 ```
+
+> [!TIP]
+> If you're using a markup format other than Markdown, you may need to install
+> an external parser before calling `vale-action`:
+>
+> ```yaml
+> # For AsciiDoc users:
+> - name: Install Asciidoctor
+>   run: sudo apt-get install -y asciidoctor
+>
+> # For reStructuredText users:
+> - name: Install docutils
+>   run: sudo apt-get install -y docutils
+> ```
+>
+> See the [Vale documentation][2] for more information.
 
 ## Repository Structure
 
-The recommended repository structure makes use of the existing `.github` directory to hold all of our Vale-related resources:
+The recommended repository structure makes use of the existing `.github` 
+directory to hold all of our Vale-related resources:
 
 ```text
 .github
@@ -38,7 +55,8 @@ The recommended repository structure makes use of the existing `.github` directo
 ...
 ```
 
-Where `styles` represents your [`StylesPath`](https://docs.errata.ai/vale/styles). The top-level `.vale.ini` file should reference this directory:
+Where `styles` represents your [`StylesPath`][3]. The top-level `.vale.ini` 
+file should reference this directory:
 
 ```ini
 StylesPath = .github/styles
@@ -50,12 +68,14 @@ BasedOnStyles = Vale
 
 ## Inputs
 
-You can further customize the linting processing by providing one of the following optional inputs.
+You can further customize the linting processing by providing one of the 
+following optional inputs.
 
-To add an input, edit your workflow file and add the `with` key to the `uses` block. For example:
+To add an input, edit your workflow file and add the `with` key to the `uses` 
+block. For example:
 
 ```yaml
-- uses: errata-ai/vale-action@reviewdog
+- uses: errata-ai/vale-action@v2.1.1
   with:
     version: 2.17.0
 ```
@@ -82,13 +102,17 @@ with:
 
 You can supply this value one of four ways:
 
-- `files: all` (default): The repo's root directory; equivalent to calling `vale .`.
+- `files: all` (default): The repo's root directory; equivalent to calling 
+`vale .`.
 
-- `files: path/to/lint`: A single file or directory; equivalent to calling `vale path/to/lint`.
+- `files: path/to/lint`: A single file or directory; equivalent to calling 
+`vale path/to/lint`.
 
-- `files: '["input1", "input2"]'`: A JSON-formatted list of file or directory arguments; equivalent to calling `vale input1 input2`.
+- `files: '["input1", "input2"]'`: A JSON-formatted list of file or directory 
+arguments; equivalent to calling `vale input1 input2`.
 
-- `files: 'input1,input2'`: A character-delimited list of files. The character is determined by the input value `separator`:
+- `files: 'input1,input2'`: A character-delimited list of files. The character 
+is determined by the input value `separator`:
     
     ```yaml
     with:
@@ -110,7 +134,8 @@ with:
 > [!WARNING]
 > This input is deprecated. Use [`fail_level`](#fail_level-default-none) instead. If `fail_level` and `fail_on_error` are both set, `fail_level` takes precedence.
 
-By default, `reviewdog` will return exit code `0` even if it finds errors. If `fail_on_error` is enabled, `reviewdog` exits with `1` when at least one error
+By default, `reviewdog` will return exit code `0` even if it finds errors. If 
+`fail_on_error` is enabled, `reviewdog` exits with `1` when at least one error
 was reported.
 
 ```yaml
@@ -141,7 +166,8 @@ with:
 
 ### `vale_flags` (default: "")
 
-Space-delimited list of flags for the Vale CLI. To see a full list of available flags, run `vale -h`.
+Space-delimited list of flags for the Vale CLI. To see a full list of available 
+flags, run `vale -h`.
 
 Note that flags should not include quotes.
 So while `--glob='*.txt'` works with Vale, it does not work with this action.
@@ -152,7 +178,7 @@ with:
   vale_flags: "--glob=*.txt"
 ```
 
-### `token` (default: [`secrets.GITHUB_TOKEN`](https://docs.github.com/en/actions/security-guides/automatic-token-authentication))
+### `token` (default: [`secrets.GITHUB_TOKEN`][4])
 
 The GitHub token to use.
 
@@ -162,3 +188,6 @@ with:
 ```
 
 [1]: https://help.github.com/en/github/automating-your-workflow-with-github-actions/configuring-a-workflow
+[2]: https://vale.sh/docs/topics/scoping/#formats
+[3]: https://vale.sh/docs/topics/styles/
+[4]: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
