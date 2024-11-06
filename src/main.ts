@@ -52,42 +52,25 @@ export async function run(actionInput: input.Input): Promise<void> {
         core.info('Calling reviewdog 🐶');
         process.env['REVIEWDOG_GITHUB_API_TOKEN'] = core.getInput('token');
         
-        // Support deprecated -fail-on-error option
+        options = [
+          '-f=rdjsonl',
+          `-name=vale`,
+          `-reporter=${core.getInput('reporter')}`,
+          `-filter-mode=${core.getInput('filter_mode')}`,
+          `-level=${vale_code == 1 ? 'error' : 'info'}`
+        ];
         if (should_fail === 'true' && should_fail_on_level === 'none') {
-          return await exec.exec(
-            actionInput.reviewdogPath,
-            [
-              '-f=rdjsonl',
-              `-name=vale`,
-              `-reporter=${core.getInput('reporter')}`,
-              `-fail-on-error=true`,
-              `-filter-mode=${core.getInput('filter_mode')}`,
-              `-level=${vale_code == 1 ? 'error' : 'info'}`
-            ],
-            {
-              cwd,
-              input: Buffer.from(output.stdout, 'utf-8'),
-              ignoreReturnCode: true
-            }
-          );
+          options.push(`-fail-on-error=true`);
+          options.push(`-level=${vale_code == 1 ? 'error' : 'info'}`);
         } else {
-          return await exec.exec(
-            actionInput.reviewdogPath,
-            [
-              '-f=rdjsonl',
-              `-name=vale`,
-              `-reporter=${core.getInput('reporter')}`,
-              `-fail-level=${should_fail_on_level}`,
-              `-filter-mode=${core.getInput('filter_mode')}`,
-              `-level=${vale_code == 1 ? should_fail_on_level : 'info'}`
-            ],
-            {
-              cwd,
-              input: Buffer.from(output.stdout, 'utf-8'),
-              ignoreReturnCode: true
-            }
-          );
+          options.push(`-fail-level=${should_fail_on_level}`);
+          options.push(`-level=${vale_code == 1 ? should_fail_on_level : 'info'}`);
         }
+        return yield exec.exec(actionInput.reviewdogPath, options, {
+          cwd,
+          input: Buffer.from(output.stdout, 'utf-8'),
+          ignoreReturnCode: true
+        });
         
       }
     );
