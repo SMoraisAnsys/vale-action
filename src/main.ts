@@ -56,8 +56,7 @@ export async function run(actionInput: input.Input): Promise<void> {
           '-f=rdjsonl',
           `-name=vale`,
           `-reporter=${core.getInput('reporter')}`,
-          `-filter-mode=${core.getInput('filter_mode')}`,
-          `-level=${vale_code == 1 ? 'error' : 'info'}`
+          `-filter-mode=${core.getInput('filter_mode')}`
         ];
         if (should_fail === 'true' && should_fail_on_level === 'none') {
           options.push(`-fail-on-error=true`);
