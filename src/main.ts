@@ -46,27 +46,31 @@ export async function run(actionInput: input.Input): Promise<void> {
         }
 
         const should_fail = core.getInput('fail_on_error');
+        const should_fail_on_level = core.getInput('fail_level');
 
         // Pipe to reviewdog ...
         core.info('Calling reviewdog 🐶');
         process.env['REVIEWDOG_GITHUB_API_TOKEN'] = core.getInput('token');
-        return await exec.exec(
-          actionInput.reviewdogPath,
-          [
-            '-f=rdjsonl',
-            `-name=vale`,
-            `-reporter=${core.getInput('reporter')}`,
-            `-fail-on-error=${should_fail}`,
-            `-filter-mode=${core.getInput('filter_mode')}`,
-            `-level=${vale_code == 1 && should_fail === 'true' ? 'error' : 'info'
-            }`
-          ],
-          {
-            cwd,
-            input: Buffer.from(output.stdout, 'utf-8'),
-            ignoreReturnCode: true
-          }
-        );
+        
+        options = [
+          '-f=rdjsonl',
+          `-name=vale`,
+          `-reporter=${core.getInput('reporter')}`,
+          `-filter-mode=${core.getInput('filter_mode')}`
+        ];
+        if (should_fail === 'true' && should_fail_on_level === 'none') {
+          options.push(`-fail-on-error=true`);
+          options.push(`-level=${vale_code == 1 ? 'error' : 'info'}`);
+        } else {
+          options.push(`-fail-level=${should_fail_on_level}`);
+          options.push(`-level=${vale_code == 1 ? should_fail_on_level : 'info'}`);
+        }
+        return yield exec.exec(actionInput.reviewdogPath, options, {
+          cwd,
+          input: Buffer.from(output.stdout, 'utf-8'),
+          ignoreReturnCode: true
+        });
+        
       }
     );
 
